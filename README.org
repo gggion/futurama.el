@@ -157,6 +157,8 @@ Passing buffer context to subprocess via =:var=:
 ;;#+end_src
 #+end_src
 
+- Status :: works but has a common issue with async execution of source blocks. where to send the results when you have 2 ongoing async executions? right now when executing 2 async blocks, the results gravitate towards a single results section, I'll need to fix that.
+
 * futur-shell.el
 attempt at getting same functionality as in =async-shell-command=
 with futur, not looking for full parity with the [[info:emacs#Shell][Shell]] utilities, just looking
@@ -166,7 +168,6 @@ I'm also trying to use it to find more usecases. For example as I was trying
 to integrate a cli tool through /futur-shell/, I realized I didn't have a way of
 executing futur commands in org-mode elisp sourceblocks and get the callback
 output in the results, so ob-futur is an attempt at that.
-
 * IDEA - cli wrapper utilities
 
 Maybe create a package which offers a useful struct or set of struct interfaces
@@ -186,3 +187,34 @@ Case in point: =cli2eli= -> any benefits to its usage are countered by its
 complete rejection of interacting with Lisp itself, using json and other
 external formats as first class elements instead of defstruct or any other lisp
 construct make it unsuitable for most nuanced applications.
+
+UPDATE: not looking good, can't think of an actual usecase for this that's not
+already covered by dwim-shell-commands.el. BUT, ther emight be a niche here for
+medium complexity command line tools, one liners are covered by
+dwim-shell-commands, giant babylonian constructs like ffmpeg require something
+in the scope of magit, not a simple wrapper, but maybe yt-dlp, or maybe subsets
+of the ffmpeg spec.
+
+* IDEA - Adapt dired-async to use futur
+dired-async already exists, but it might be useful to adapt it to futur just to
+learn more usage patterns. It does solve async issues in a similar manner as
+futur, most of it's async-* functions can be mapped to futur ones.
+
+For example:
+
+| emacs-async              | futur equivalent                              |
+|--------------------------+-----------------------------------------------|
+| ~async-start~ with lambda  | ~futur-elisp--funcall~ with lambda              |
+| ~async-inject-variables~   | Lexical capture in closure sent to subprocess |
+| ~async-when-done~ sentinel | ~futur-bind~ callback                           |
+| etc                      |                                               |
+
+Main advantage of using futur here would be composability, the /futur/ returned by
+the file operation can be chained through /futur-let*/ so things like /copy then
+byte-compile/ could be done without the nested callbacks... maybe?
+
+No idea how to deal with TRAMP, maybe that would be the main benefit of trying
+to do it. Another thing which I havent tested with futur is making a 'widget' on
+the modeline that reports progress on an operation, say If I delete a folder
+with 10k files, show the progress, maybe it could work like the joke futurama
+example.
