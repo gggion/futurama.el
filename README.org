@@ -2,7 +2,7 @@
 
 #+HTML: <p align="center"><img src="images/futur.gif" ></p>
 
-#+begin_html 
+#+begin_html
 <table align="center"><tr>
   <tr>
     <td>
@@ -45,15 +45,50 @@
 Maybe a package? donknow.
 For now this'll have different attempts at using futur.el to do stuff.
 
-* futur-shell.el 
-attempt at getting same functionality as in =async-shell-command=
-with futur, not looking for full parity with the [[info:emacs#Shell][Shell]] utilities, just looking
-to be able to execute asynchronously and display the progress on a buffer.
 
-I'm also trying to use it to find more usecases. For example as I was trying
-to integrate a cli tool through /futur-shell/, I realized I didn't have a way of
-executing futur commands in org-mode elisp sourceblocks and get the callback
-output in the results, so ob-futur is an attempt at that.
+* Installation
+#+begin_quote
+[!WARNING]
+for experimental purposes mostly, things might break or not work reilably.
+#+end_quote
+
+
+Requires Emacs 30.1+ and ~futur~ from GNU ELPA Devel (ob-futur uses futur-elisp,
+which is a rename from futur-client in the older version).
+
+- futur (dependency) ::
+#+begin_src emacs-lisp
+;; elpaca use-package
+(use-package futur
+  :ensure (:host nil :repo "https://git.savannah.gnu.org/git/emacs/elpa.git"
+           :branch "externals/futur" :files ("*")))
+
+;; doom emacs package!
+(package! futur :recipe
+  (:host nil :type git
+   :repo "https://git.savannah.gnu.org/git/emacs/elpa.git"
+   :branch "externals/futur"
+   :files ("*")))
+
+(use-package! futur)
+#+end_src
+
+- futur-shell ::
+#+begin_src emacs-lisp
+(use-package futur-shell
+  :ensure (:host github :repo "gggion/futurama.el" :files ("futur-shell.el"))
+  :commands (futur-shell-async-command
+             futur-shell-command
+             futur-shell-command-to-string))
+#+end_src
+
+- ob-futur ::
+#+begin_src emacs-lisp
+(use-package ob-futur
+  :ensure (:host github :repo "gggion/futurama.el" :files ("ob-futur.el"))
+  :after org
+  :config (ob-futur-mode 1))
+#+end_src
 
 * ob-futur.el
 Adds =:futur-async= header argument to elisp source blocks. Two modes, dispatched
@@ -76,14 +111,14 @@ the subprocess:
 ;;+end_src
 #+end_src
 
-- =:futur-async bind= :: 
+- =:futur-async bind= ::
 
 Evaluate the body in the current Emacs. Expect a futur object as return value,
 resolve it via ~futur-bind~. Full access to Emacs state (buffers,
 default-directory~, dynamic bindings at eval time). Use for process-based /
 network-based async operations built on futur constructors like
 futur-shell-command-to-string~, ~futur-process-call~, or ~futur-url-retrieve~.
-  
+
 If the body returns a plain (non-futur) value, falls back to synchronous
 formatting via the stock ~org-babel-result-cond~ path.
 
@@ -122,7 +157,17 @@ Passing buffer context to subprocess via =:var=:
 ;;#+end_src
 #+end_src
 
-* IDEA - cli wrapper utilities 
+* futur-shell.el
+attempt at getting same functionality as in =async-shell-command=
+with futur, not looking for full parity with the [[info:emacs#Shell][Shell]] utilities, just looking
+to be able to execute asynchronously and display the progress on a buffer.
+
+I'm also trying to use it to find more usecases. For example as I was trying
+to integrate a cli tool through /futur-shell/, I realized I didn't have a way of
+executing futur commands in org-mode elisp sourceblocks and get the callback
+output in the results, so ob-futur is an attempt at that.
+
+* IDEA - cli wrapper utilities
 
 Maybe create a package which offers a useful struct or set of struct interfaces
 to facilitate the creation command line tools wrappers leveraging futur.el for
