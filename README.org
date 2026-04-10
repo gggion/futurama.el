@@ -1,10 +1,49 @@
 #+title: Exploring futur.el usage and application
 
-<IMAGINE THERES A FUNNY IMAGE HERE FROM FUTURAMA FROM YOUR FAVORITE EPISODE>
+#+HTML: <p align="center"><img src="images/futur.gif" ></p>
+
+#+begin_html 
+<table align="center"><tr>
+  <tr>
+    <td>
+      <code>#+begin_src elisp :futur-async bind :lexical t</code>
+      <pre lang=elisp>(let ((t0 (float-time)))
+  (cl-labels
+      ((ding! ()
+         (call-process "afplay" nil 0 nil "/System/Library/Sounds/Ping.aiff"))
+       (try (n)
+         (futur-let* ((_ <- (futur-timeout 2)))
+           (if (or (zerop (random 20)) (>= n 20))
+               (progn (ding!) (ding!) (format "[%.1fs] DONE" (- (float-time) t0)))
+             (ding!) (message "[%.1fs] NOT YET" (- (float-time) t0))
+             (try (1+ n))))))
+    (try 1)))</pre>
+      <code>#+end_src</code>
+    </td>
+  </tr>
+</table>
+<p align="center"><em>Is it done?</em></p>
+#+end_html
+
+#+begin_comment
+#+begin_src elisp :futur-async bind :lexical t
+(let ((t0 (float-time)))
+  (cl-labels
+      ((ding! ()
+         (call-process "afplay" nil 0 nil "/System/Library/Sounds/Ping.aiff"))
+       (try (n)
+         (futur-let* ((_ <- (futur-timeout 2)))
+           (if (or (zerop (random 15)) (>= n 15))
+               (progn (ding!) (ding!) (format "[%.1fs] DONE" (- (float-time) t0)))
+             (ding!) (message "[%.1fs] NOT YET" (- (float-time) t0))
+             (try (1+ n))))))
+    (try 1)))
+#+end_src
+#+end_comment
+
 
 Maybe a package? donknow.
-Dor now this'll have different attempts at using futur.el to do stuff.
-For now I have:
+For now this'll have different attempts at using futur.el to do stuff.
 
 * futur-shell.el 
 attempt at getting same functionality as in =async-shell-command=
