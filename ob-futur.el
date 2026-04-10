@@ -2,7 +2,7 @@
 
 ;; Author: Gino Cornejo <gggion123@gmail.com>
 ;; Maintainer: Gino Cornejo <gggion123@gmail.com>
-;; URL: https://github.com/gggion/struct-completion.el
+;; URL: https://github.com/gggion/futurama.el
 ;; Keywords: processes, async, org
 
 ;; Package-Version: 0.0.1
