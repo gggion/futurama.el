@@ -1,0 +1,104 @@
+#+title: Exploring futur.el usage and application
+
+<IMAGINE THERES A FUNNY IMAGE HERE FROM FUTURAMA FROM YOUR FAVORITE EPISODE>
+
+Maybe a package? donknow.
+Dor now this'll have different attempts at using futur.el to do stuff.
+For now I have:
+
+* futur-shell.el 
+attempt at getting same functionality as in =async-shell-command=
+with futur, not looking for full parity with the [[info:emacs#Shell][Shell]] utilities, just looking
+to be able to execute asynchronously and display the progress on a buffer.
+
+I'm also trying to use it to find more usecases. For example as I was trying
+to integrate a cli tool through /futur-shell/, I realized I didn't have a way of
+executing futur commands in org-mode elisp sourceblocks and get the callback
+output in the results, so ob-futur is an attempt at that.
+
+* ob-futur.el
+Adds =:futur-async= header argument to elisp source blocks. Two modes, dispatched
+by value. Requires ~ob-futur-mode~ to be enabled.
+
+- =:futur-async yes= ::
+
+Run the body in a batch Emacs subprocess via ~futur-elisp--funcall~. Fully
+non-blocking. No access to current Emacs state (buffers, windows, dynamic
+bindings). Return values must be print/read round-trippable. Use for CPU-bound
+work.
+
+The subprocess has no access to the current buffer. To pass buffer data, use
+Org's =:var= header which evaluates in the current Emacs before the body ships to
+the subprocess:
+
+#+begin_src elisp
+;;#+begin_src elisp :futur-async yes :var text=(buffer-string) dir=default-directory
+(format "Buffer has %d chars in %s" (length text) dir)
+;;+end_src
+#+end_src
+
+- =:futur-async bind= :: 
+
+Evaluate the body in the current Emacs. Expect a futur object as return value,
+resolve it via ~futur-bind~. Full access to Emacs state (buffers,
+default-directory~, dynamic bindings at eval time). Use for process-based /
+network-based async operations built on futur constructors like
+futur-shell-command-to-string~, ~futur-process-call~, or ~futur-url-retrieve~.
+  
+If the body returns a plain (non-futur) value, falls back to synchronous
+formatting via the stock ~org-babel-result-cond~ path.
+
+Both modes insert a placeholder =Executing asynchronously...= immediately, then
+replace it with the resolved result when the async operation completes.
+Incompatible with =:results output=.
+
+CPU-bound example (subprocess, non-blocking):
+
+#+begin_src elisp :export none
+;;#+begin_src elisp :futur-async yes
+(let ((primes nil) (n 2))
+  (while (< (length primes) 5000)
+    (when (cl-loop for d from 2 to (cl-isqrt n)
+                   never (zerop (% n d)))
+      (push n primes))
+    (cl-incf n))
+  (format "Found %d primes, largest: %d"
+          (length primes) (car primes)))
+;;#+end_src
+#+end_src
+
+Process-based example (current Emacs, futur resolved via bind):
+
+#+begin_src elisp :export none
+;;#+begin_src elisp :futur-async bind
+(futur-shell-command-to-string "sleep 2 && echo done")
+;;,#+end_src
+#+end_src
+
+Passing buffer context to subprocess via =:var=:
+
+#+begin_src elisp :export none
+;;#+begin_src elisp :futur-async yes :var lines=(count-lines (point-min) (point-max))
+(format "Buffer had %d lines at eval time" lines)
+;;#+end_src
+#+end_src
+
+* IDEA - cli wrapper utilities 
+
+Maybe create a package which offers a useful struct or set of struct interfaces
+to facilitate the creation command line tools wrappers leveraging futur.el for
+async execution?
+
+Not sure, what does it gain in comparison to use normal shell-command and
+async-shell-command? The wrapper might be useful but I'm still not sure if a
+wrapper to facilitate futur for this purpose would be an actual benefit. imo
+most of the benefits of futur come from the API itself -> creating a wrapper
+might hinder leveraging the futur API in the first place.
+
+If I chose to do this It'll need to be able to actually interact with lisp and
+the futur API (like futur-let*) seamlessly and not loose its 'lispiness'
+
+Case in point, =cli2eli= -> any benefits to its usage are countered by its
+complete rejection of interacting with Lisp itself, using json and and other
+external formats first class instead of structs or any other lisp construct make
+it unsuitable for most nuanced applications.
