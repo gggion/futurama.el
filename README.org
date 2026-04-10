@@ -89,16 +89,16 @@ Maybe create a package which offers a useful struct or set of struct interfaces
 to facilitate the creation command line tools wrappers leveraging futur.el for
 async execution?
 
-Not sure, what does it gain in comparison to use normal shell-command and
+Not sure, what does it gain in comparison to the normal shell-command and
 async-shell-command? The wrapper might be useful but I'm still not sure if a
 wrapper to facilitate futur for this purpose would be an actual benefit. imo
 most of the benefits of futur come from the API itself -> creating a wrapper
 might hinder leveraging the futur API in the first place.
 
-If I chose to do this It'll need to be able to actually interact with lisp and
-the futur API (like futur-let*) seamlessly and not loose its 'lispiness'
+If I chose to do this It'll need to be able to actually interact with Lisp and
+the futur API (like futur-let*) seamlessly and not lose its 'lispiness'.
 
-Case in point, =cli2eli= -> any benefits to its usage are countered by its
-complete rejection of interacting with Lisp itself, using json and and other
-external formats first class instead of structs or any other lisp construct make
-it unsuitable for most nuanced applications.
+Case in point: =cli2eli= -> any benefits to its usage are countered by its
+complete rejection of interacting with Lisp itself, using json and other
+external formats as first class elements instead of defstruct or any other lisp
+construct make it unsuitable for most nuanced applications.
