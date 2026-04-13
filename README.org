@@ -218,3 +218,14 @@ to do it. Another thing which I havent tested with futur is making a 'widget' on
 the modeline that reports progress on an operation, say If I delete a folder
 with 10k files, show the progress, maybe it could work like the joke futurama
 example.
+* IDEA - dired data reader using duckdb-query.el and futur
+
+Would support all currently supported file formats that duckdb supports,
+including: json, parquet, csv, xlsx, etc. Would need to take into account duckdb
+extensions for additional file formats, maybe some sort of registry/custom var
+to track/enable or disable file types.
+
+I could explore several usage patterns here for asynchronous data load/display.
+
+
+
