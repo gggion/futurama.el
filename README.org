@@ -227,5 +227,7 @@ to track/enable or disable file types.
 
 I could explore several usage patterns here for asynchronous data load/display.
 
-
-
+* IDEA - Async support for duckdb-query.el
+not sure if the trick here would be to offer an :async param for duckdb-query or
+futur-let* wrap around a duckdb-query command, since queries return results
+(sometimes). This would also serve as backend for the async at [[https://github.com/gggion/ob-duckdb][ob-duckdb]].
